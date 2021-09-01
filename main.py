@@ -16,11 +16,13 @@ intents.members = True
 
 bot = commands.Bot(command_prefix=['gp '], intents=intents)
 
+# list of cogs
 initial_extensions = ['cogs.work', 'cogs.BotManagement', 'jishaku']
 
 database = database_client['Leveling']
 bot.users_collection = database['Users']
 
+# leveling dict
 bot.levels = {
     0: 0,
     1: 1,
@@ -44,6 +46,7 @@ async def on_ready():
 
 @bot.event
 async def on_member_join(member):
+    #   Checks if the user is already in the database, and if not adds them to it with base values
     if await bot.users_collection.count_documents({"_id": str(member.id)}, limit=1) == 0:
         user_dict = {"_id": str(member.id),
                      "level": 0, "experience": 0,
@@ -53,6 +56,7 @@ async def on_member_join(member):
 
 
 def update_level(current_level, current_experience):
+    #   Adds experience if the user didn't level up, resets exp if they did
     experience = current_experience + 1
     if experience == bot.levels[current_level + 1]:
         experience = 0
@@ -65,6 +69,8 @@ def update_level(current_level, current_experience):
 
 @bot.event
 async def on_message(message):
+    #   Checks if the user is in the db, adds them with base values if not
+    #   Updates message count, level, and experience
     if not message.author.bot:
         if await bot.users_collection.count_documents({"_id": str(message.author.id)}, limit=1) == 0:
             user_dict = {"_id": str(message.author.id),
@@ -86,7 +92,7 @@ async def on_message(message):
 
     await bot.process_commands(message)
 
-
+# loads extensions and starts bot
 if __name__ == '__main__':
     for extension in initial_extensions:
         bot.load_extension(extension)
