@@ -16,12 +16,12 @@ intents.members = True
 
 bot = commands.Bot(command_prefix=['gp '], intents=intents)
 
-initial_extensions = []
+initial_extensions = ['cogs.work', 'jishaku']
 
 database = database_client['Leveling']
 bot.users_collection = database['Users']
 
-levels = {
+bot.levels = {
     0: 0,
     1: 1,
     2: 10,
@@ -42,9 +42,16 @@ async def on_ready():
     print(f"Guinea Pig is active in {len(bot.guilds)} servers!")
 
 
-async def update_level(current_level, current_experience):
+@bot.event
+async def on_member_join(member):
+    if await bot.users_collection.count_documents({"_id": str(member.id)}, limit=1) == 0:
+        user_dict = {"_id": str(member.id), "level": 0, "experience": 0, "total_messages": 0}
+        await bot.users_collection.insert_one(user_dict)
+
+
+def update_level(current_level, current_experience):
     experience = current_experience + 1
-    if experience == levels[current_level + 1]:
+    if experience == bot.levels[current_level + 1]:
         experience = 0
         level = current_level + 1
         print("Someone leveled up!")
@@ -63,7 +70,7 @@ async def on_message(message):
         print(message.author.id)
         user = await bot.users_collection.find_one({"_id": str(message.author.id)})
         print(user)
-        level, experience = await update_level(user['level'], user['experience'])
+        level, experience = update_level(user['level'], user['experience'])
         await bot.users_collection.update_one({"_id": user["_id"]},
                                               {"$set":
                                                   {
@@ -72,6 +79,8 @@ async def on_message(message):
                                                       "total_messages": user['total_messages'] + 1
                                                   }
                                               })
+
+    await bot.process_commands(message)
 
 
 if __name__ == '__main__':
