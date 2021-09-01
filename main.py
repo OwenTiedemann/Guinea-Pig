@@ -16,7 +16,7 @@ intents.members = True
 
 bot = commands.Bot(command_prefix=['gp '], intents=intents)
 
-initial_extensions = ['cogs.work', 'jishaku']
+initial_extensions = ['cogs.work', 'cogs.BotManagement', 'jishaku']
 
 database = database_client['Leveling']
 bot.users_collection = database['Users']
