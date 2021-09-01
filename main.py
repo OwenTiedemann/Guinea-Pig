@@ -73,9 +73,7 @@ async def on_message(message):
                          "inventory": {"pickaxe": 1}}
             await bot.users_collection.insert_one(user_dict)
 
-        print(message.author.id)
         user = await bot.users_collection.find_one({"_id": str(message.author.id)})
-        print(user)
         level, experience = update_level(user['level'], user['experience'])
         await bot.users_collection.update_one({"_id": user["_id"]},
                                               {"$set":
