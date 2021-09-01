@@ -45,7 +45,10 @@ async def on_ready():
 @bot.event
 async def on_member_join(member):
     if await bot.users_collection.count_documents({"_id": str(member.id)}, limit=1) == 0:
-        user_dict = {"_id": str(member.id), "level": 0, "experience": 0, "total_messages": 0}
+        user_dict = {"_id": str(member.id),
+                     "level": 0, "experience": 0,
+                     "total_messages": 0,
+                     "inventory": {"pickaxe": 1}}
         await bot.users_collection.insert_one(user_dict)
 
 
@@ -64,7 +67,10 @@ def update_level(current_level, current_experience):
 async def on_message(message):
     if not message.author.bot:
         if await bot.users_collection.count_documents({"_id": str(message.author.id)}, limit=1) == 0:
-            user_dict = {"_id": str(message.author.id), "level": 0, "experience": 0, "total_messages": 0}
+            user_dict = {"_id": str(message.author.id),
+                         "level": 0, "experience": 0,
+                         "total_messages": 0,
+                         "inventory": {"pickaxe": 1}}
             await bot.users_collection.insert_one(user_dict)
 
         print(message.author.id)

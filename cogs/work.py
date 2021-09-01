@@ -19,13 +19,8 @@ class Work(commands.Cog, name="Work"):
                       brief="Gain experience by mining")  # , description="Use your pickaxe to mine experience, buy better pickaxes for better rates")
     async def mine(self, ctx):
         user = await self.bot.users_collection.find_one({"_id": str(ctx.author.id)})
-        print(user)
-        if 'pickaxe' in user:
-            pickaxe = user['pickaxe']
-        else:
-            pickaxe = 1
 
-        experience_mined = 10 / user['level'] * pickaxe
+        experience_mined = 10 / user['level'] * user['inventory']['pickaxe']
 
         level, experience = await self.update_level(user['level'], user['experience'], experience_mined)
         await self.bot.users_collection.update_one({"_id": user["_id"]},
@@ -33,7 +28,6 @@ class Work(commands.Cog, name="Work"):
                                                        {
                                                            "level": level,
                                                            "experience": experience,
-                                                           "pickaxe": pickaxe
                                                        }
                                                    })
 
